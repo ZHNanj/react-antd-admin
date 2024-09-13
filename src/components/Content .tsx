@@ -1,30 +1,50 @@
-import React from 'react';
-import { Layout } from 'antd';
+import React, { useRef, useState } from 'react';
+import { Layout, Tabs } from 'antd';
 
 const { Content: AntContent } = Layout;
 
-const Content: React.FC<{ background: string }> = ({ background }) => {
+type TargetKey = React.MouseEvent | React.KeyboardEvent | string;
+
+const Content: React.FC<{ 
+  background: string, 
+  tabs: { label: string, children: string, key: string }[], 
+  activeTabKey: string, 
+  setActiveTabKey: (key: string) => void,
+  setTabs: (tabs: { label: string, children: string, key: string }[]) => void,
+}> = ({ background, tabs, activeTabKey, setActiveTabKey, setTabs }) => {
+
+  const onChange = (key: string) => {
+    setActiveTabKey(key);
+  };
+
+  const remove = (targetKey: TargetKey) => {
+    const targetIndex = tabs.findIndex((pane) => pane.key === targetKey);
+    const newPanes = tabs.filter((pane) => pane.key !== targetKey);
+    if (newPanes.length && targetKey === activeTabKey) {
+      const { key } = newPanes[targetIndex === newPanes.length ? targetIndex - 1 : targetIndex];
+      setActiveTabKey(key);
+    }
+    setTabs(newPanes);
+  };
+
+  const onEdit = (targetKey: TargetKey, action: 'add' | 'remove') => {
+    if (action === 'add') {
+      add();
+    } else {
+      remove(targetKey);
+    }
+  };
+
   return (
     <AntContent className={`mt-6 mb-0 mx-4`}>
-      <div
-        style={{
-          padding: 24,
-          textAlign: 'center',
-          background,
-          borderRadius: '8px', // 可以使用 Tailwind CSS 类
-        }}
-      >
-        <p>long content</p>
-        {
-          // indicates very long content
-          Array.from({ length: 100 }, (_, index) => (
-            <React.Fragment key={index}>
-              {index % 20 === 0 && index ? 'more' : '...'}
-              <br />
-            </React.Fragment>
-          ))
-        }
-      </div>
+      <Tabs
+        hideAdd
+        onChange={onChange}
+        activeKey={activeTabKey}
+        type="editable-card"
+        onEdit={onEdit}
+        items={tabs}
+      />
     </AntContent>
   );
 };

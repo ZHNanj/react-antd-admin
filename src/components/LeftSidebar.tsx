@@ -50,9 +50,12 @@ interface IProps {
     collapsed: boolean,
     setCollapsed: (collapsed: boolean) => void,
     setBreadcrumb: (breadcrumb: { label: string, icon: React.ReactNode }[]) => void,
+    tabs: { label: string, children: string, key: string }[],
+    addTab: (label: string, children: string, key: string) => void,
+    setActiveKey: (key: string) => void,
 }
 
-const LeftSideBar: FC<IProps> = ({ collapsed, setCollapsed, setBreadcrumb }) => {
+const LeftSideBar: FC<IProps> = ({ collapsed, setCollapsed, setBreadcrumb, tabs, addTab, setActiveKey }) => {
     const handleMenuClick = (key: string) => {
         const selectedItem = items.flatMap(item => item.children ? item.children : []).find(item => item.key === key);
         const parentItem = items.find(item => item.children?.some(child => child.key === key));
@@ -62,6 +65,15 @@ const LeftSideBar: FC<IProps> = ({ collapsed, setCollapsed, setBreadcrumb }) => 
             selectedItem ? { label: selectedItem.label, icon: selectedItem.icon } : null
         ].filter(Boolean) as { label: string, icon: React.ReactNode }[];
         setBreadcrumb(breadcrumb);
+
+        if (selectedItem) {
+            const tab = tabs.find(tab => tab.key === selectedItem.key);
+            if (tab) {
+              setActiveKey(selectedItem.key);
+            } else {
+                addTab(selectedItem.label, `Content of ${selectedItem.label}`, selectedItem.key);
+            }
+        }
     };
 
     return (
