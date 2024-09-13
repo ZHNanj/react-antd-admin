@@ -8,5 +8,7 @@ export default {
     extend: {},
   },
   plugins: [],
+  // 更改antd样式优先级问题
+  important: true,
 }
 

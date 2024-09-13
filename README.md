@@ -17,6 +17,18 @@
 - 🔐 Built-in authentication and authorization
 - 🌐 I18n support for multi-language interfaces
 
+### Directory Structure
+src/: Source code directory
+- components/: Shared components
+- pages/: Page components
+- hooks/: Custom hooks
+- context/: React context
+- utils/: Utility functions
+- styles/: Style files (e.g., CSS or Tailwind configuration)
+- assets/: Static resources (e.g., images, fonts, etc.)
+- services/: API requests and services
+- types/: TypeScript type definitions
+
 ### Roadmap
 
 1. **Phase 1: Foundation**
@@ -73,6 +85,18 @@ We welcome contributions and suggestions to make this template even better!
 - 📱 响应式设计，适配各种屏幕尺寸
 - 🔐 内置身份验证和授权
 - 🌐 支持I18n多语言界面
+
+### 目录结构
+src/: 存放源代码
+- components/: 共享组件
+- pages/: 页面组件
+- hooks/: 自定义 hooks
+- context/: React 上下文
+- utils/: 工具函数
+- styles/: 样式文件（如 CSS 或 Tailwind 配置）
+- assets/: 静态资源（如图片、字体等）
+- services/: API 请求和服务
+- types/: TypeScript 类型定义
 
 ### 路线图
 
