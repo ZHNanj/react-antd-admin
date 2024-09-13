@@ -14,6 +14,7 @@ const Content: React.FC<{
 }> = ({ background, tabs, activeTabKey, setActiveTabKey, setTabs }) => {
 
   const onChange = (key: string) => {
+    console.log(key);
     setActiveTabKey(key);
   };
 
@@ -36,7 +37,7 @@ const Content: React.FC<{
   };
 
   return (
-    <AntContent className={`mt-6 mb-0 mx-4`}>
+    <AntContent style={{ background }} className={`mt-6 mb-0 mx-4`}>
       <Tabs
         hideAdd
         onChange={onChange}

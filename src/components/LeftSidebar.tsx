@@ -1,5 +1,5 @@
 import { Layout, Menu } from "antd";
-import { FC } from "react";
+import { FC, useEffect, useState } from "react";
 import {
     AppstoreOutlined,
     BarChartOutlined,
@@ -53,10 +53,21 @@ interface IProps {
     tabs: { label: string, children: string, key: string }[],
     addTab: (label: string, children: string, key: string) => void,
     setActiveKey: (key: string) => void,
+    activeTabKey: string,
 }
 
-const LeftSideBar: FC<IProps> = ({ collapsed, setCollapsed, setBreadcrumb, tabs, addTab, setActiveKey }) => {
-    const handleMenuClick = (key: string) => {
+const LeftSideBar: FC<IProps> = ({ collapsed, setCollapsed, setBreadcrumb, tabs, addTab, setActiveKey, activeTabKey }) => {
+  const [openKeys, setOpenKeys] = useState<string[]>(['overview']);
+
+  useEffect(() => {
+    const parentKey = items.find(item => item.children?.some(child => child.key === activeTabKey))?.key;
+    if (parentKey && !openKeys.includes(parentKey)) {
+      setOpenKeys(prevKeys => [...prevKeys, parentKey]);
+    }
+  }, [activeTabKey, openKeys]);
+
+  const handleMenuClick = (key: string) => {
+    console.log(key);
         const selectedItem = items.flatMap(item => item.children ? item.children : []).find(item => item.key === key);
         const parentItem = items.find(item => item.children?.some(child => child.key === key));
         const breadcrumb = [
@@ -76,12 +87,25 @@ const LeftSideBar: FC<IProps> = ({ collapsed, setCollapsed, setBreadcrumb, tabs,
         }
     };
 
-    return (
-        <Sider collapsible collapsed={collapsed} onCollapse={(value) => setCollapsed(value)} className='fixed overflow-auto h-screen inset-y-0 left-0 scrollbar-thin scrollbar-thumb-gray-300'>
-            <div className="demo-logo-vertical" />
-            <Menu theme="dark" mode="inline" defaultSelectedKeys={['overview']} items={items} inlineCollapsed={collapsed} onClick={({ key }) => handleMenuClick(key)} />
-        </Sider>
-    );
+  const onOpenChange = (keys: string[]) => {
+    setOpenKeys(keys);
+  };
+
+  return (
+    <Sider collapsible collapsed={collapsed} onCollapse={(value) => setCollapsed(value)} className='fixed overflow-auto h-screen inset-y-0 left-0 scrollbar-thin scrollbar-thumb-gray-300'>
+      <div className="demo-logo-vertical" />
+      <Menu 
+        theme="dark" 
+        mode="inline" 
+        items={items} 
+        inlineCollapsed={collapsed} 
+        onClick={({ key }) => handleMenuClick(key)} 
+        selectedKeys={[activeTabKey]}
+        openKeys={openKeys}
+        onOpenChange={onOpenChange}
+      />
+    </Sider>
+  );
 };
 
 export default LeftSideBar;

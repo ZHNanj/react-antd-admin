@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Layout, theme } from 'antd';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import LeftSideBar from '../components/LeftSidebar';
 import Content from '../components/Content ';
+import { BarChartOutlined, UserOutlined } from '@ant-design/icons';
 
 const Home: React.FC = () => {
   const {
@@ -11,9 +12,12 @@ const Home: React.FC = () => {
   } = theme.useToken();
 
   const [collapsed, setCollapsed] = useState(false);
-  const [breadcrumb, setBreadcrumb] = useState<string[]>(['Home']); // 初始化面包屑
-  const [tabs, setTabs] = useState([{ label: 'Home', children: 'Home Content', key: 'home' }]);
-  const [activeTabKey, setActiveTabKey] = useState('home');
+  const [breadcrumb, setBreadcrumb] = useState<{ label: string, icon: React.ReactNode }[]>([
+    { label: '概览', icon: <UserOutlined /> },
+    { label: '分析页', icon: <BarChartOutlined /> }
+  ]);
+  const [tabs, setTabs] = useState([{ label: '分析页', children: 'analysis Content', key: 'analysis' }]);
+  const [activeTabKey, setActiveTabKey] = useState('analysis');
 
   const addTab = (label: string, children: string, key: string) => {
     setTabs([...tabs, { label, children, key }]);
@@ -29,6 +33,7 @@ const Home: React.FC = () => {
         addTab={addTab} 
         setActiveKey={setActiveTabKey}
         tabs={tabs}
+        activeTabKey={activeTabKey}
       />
       <Layout className={`${collapsed ? `ml-20` : `ml-[200px]`}`}>
         <Header background={colorBgContainer} breadcrumb={breadcrumb} />
