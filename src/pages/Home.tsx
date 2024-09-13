@@ -11,12 +11,13 @@ const Home: React.FC = () => {
   } = theme.useToken();
 
   const [collapsed, setCollapsed] = useState(false);
+  const [breadcrumb, setBreadcrumb] = useState<string[]>(['Home']); // 初始化面包屑
 
   return (
     <Layout hasSider>
-      <LeftSideBar collapsed={collapsed} setCollapsed={setCollapsed} />
+      <LeftSideBar collapsed={collapsed} setCollapsed={setCollapsed} setBreadcrumb={setBreadcrumb} />
       <Layout className={`${collapsed ? `ml-20` : `ml-[200px]`}`}>
-        <Header background={colorBgContainer} />
+        <Header background={colorBgContainer} breadcrumb={breadcrumb} />
         <Content background={colorBgContainer} />
         <Footer />
       </Layout>
