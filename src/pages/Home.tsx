@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Layout, theme } from 'antd';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
@@ -13,29 +13,31 @@ const Home: React.FC = () => {
   } = theme.useToken();
 
   const [collapsed, setCollapsed] = useState(false);
-  const { setMenuItems } = useAppStore();
-  const { handleMenuClick: handleMenuClickAction } = useAppActions();
-
-  const memoizedHandleMenuClickAction = useCallback(handleMenuClickAction, []);
+  const { setMenuItems, menuItems } = useAppStore();
+  const { handleMenuClick } = useAppActions();
+  const initialMenuItemSet = useRef(false);
 
   useEffect(() => {
     const fetchMenuItems = async () => {
       try {
         const items = await getMenuItems();
         setMenuItems(items);
-        // 设置默认选中项
-        if (items.length > 0) {
-          const firstMenuItem = items[0];
-          const firstChildKey = firstMenuItem.children?.[0]?.key || firstMenuItem.key;
-          memoizedHandleMenuClickAction(firstChildKey);
-        }
       } catch (error) {
         console.error('获取菜单项失败:', error);
       }
     };
 
     fetchMenuItems();
-  }, [setMenuItems, memoizedHandleMenuClickAction]);
+  }, [setMenuItems]);
+
+  useEffect(() => {
+    if (menuItems.length > 0 && !initialMenuItemSet.current) {
+      const firstMenuItem = menuItems[0];
+      const firstChildKey = firstMenuItem.children?.[0]?.key || firstMenuItem.key;
+      handleMenuClick(firstChildKey);
+      initialMenuItemSet.current = true;
+    }
+  }, [menuItems, handleMenuClick]);
 
   return (
     <Layout hasSider>

@@ -1,14 +1,15 @@
 import React from 'react';
 import { Tabs } from 'antd';
-import { useAppStore } from '../store/appStore';
+import { useAppStore, useAppActions } from '../store/appStore';
 
 type TargetKey = React.MouseEvent | React.KeyboardEvent | string;
 
 const TabsView: React.FC = () => {
-  const { tabs, activeTabKey, setActiveTabKey, setTabs } = useAppStore();
+  const { tabs, activeTabKey, setTabs } = useAppStore();
+  const { handleTabChange } = useAppActions();
 
   const onChange = (key: string) => {
-    setActiveTabKey(key);
+    handleTabChange(key);
   };
 
   const remove = (targetKey: TargetKey) => {
@@ -16,7 +17,7 @@ const TabsView: React.FC = () => {
     const newPanes = tabs.filter((pane) => pane.key !== targetKey);
     if (newPanes.length && targetKey === activeTabKey) {
       const { key } = newPanes[targetIndex === newPanes.length ? targetIndex - 1 : targetIndex];
-      setActiveTabKey(key);
+      handleTabChange(key);
     }
     setTabs(newPanes);
   };

@@ -26,5 +26,16 @@ export const useAppActions = () => {
     }
   };
 
-  return { handleMenuClick };
+  const handleTabChange = (key: string) => {
+    const [item, parents] = findItemAndParents(key);
+    if (item) {
+      setBreadcrumb([
+        ...parents.map(parent => ({ label: parent.label, icon: parent.icon })),
+        { label: item.label, icon: item.icon },
+      ]);
+      setActiveTabKey(key);
+    }
+  };
+
+  return { handleMenuClick, handleTabChange };
 };
