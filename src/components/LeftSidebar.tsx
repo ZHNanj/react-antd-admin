@@ -1,6 +1,6 @@
 import { Layout, Menu } from "antd";
 import { FC, useEffect, useState } from "react";
-import { useAppStore } from "../store/appStore";
+import { useAppActions, useAppStore } from "../store/appStore";
 import { MenuItem } from "../types/menu";
 
 const { Sider } = Layout;
@@ -11,7 +11,8 @@ interface IProps {
 }
 
 const LeftSideBar: FC<IProps> = ({ collapsed, setCollapsed }) => {
-  const { menuItems, activeTabKey, handleMenuClick } = useAppStore();
+  const { menuItems, activeTabKey } = useAppStore();
+  const { handleMenuClick } = useAppActions();
   const [openKeys, setOpenKeys] = useState<string[]>([]);
 
   useEffect(() => {

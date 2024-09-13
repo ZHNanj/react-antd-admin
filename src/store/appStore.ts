@@ -1,79 +1,30 @@
 import { create } from 'zustand';
-import { MenuItem } from '../types/menu';
-import { iconMap } from '../utils/iconMapping';
+import { MenuSlice, createMenuSlice } from './menuSlice';
+import { TabsSlice, createTabsSlice } from './tabsSlice';
+import { BreadcrumbSlice, createBreadcrumbSlice } from './breadcrumbSlice';
 
-interface AppState {
-  menuItems: MenuItem[];
-  setMenuItems: (items: MenuItem[]) => void;
-  activeTabKey: string;
-  setActiveTabKey: (key: string) => void;
-  tabs: { label: string; children: string; key: string }[];
-  setTabs: (tabs: { label: string; children: string; key: string }[]) => void;
-  breadcrumb: { label: string; icon: React.ReactNode }[];
-  setBreadcrumb: (breadcrumb: { label: string; icon: React.ReactNode }[]) => void;
-  handleMenuClick: (key: string) => void;
-  updateBreadcrumb: (key: string) => void;
-}
+type AppState = MenuSlice & TabsSlice & BreadcrumbSlice;
 
-const mapMenuItems = (items: MenuItem[]): MenuItem[] => {
-  return items.map(item => ({
-    ...item,
-    icon: iconMap[item.key],
-    children: item.children ? mapMenuItems(item.children) : undefined,
-  }));
-};
-
-const findItemAndParents = (items: MenuItem[], key: string, parents: MenuItem[] = []): [MenuItem | undefined, MenuItem[]] => {
-  for (const item of items) {
-    if (item.key === key) {
-      return [item, parents];
-    }
-    if (item.children) {
-      const [found, foundParents] = findItemAndParents(item.children, key, [...parents, item]);
-      if (found) {
-        return [found, foundParents];
-      }
-    }
-  }
-  return [undefined, []];
-};
-
-export const useAppStore = create<AppState>((set, get) => ({
-  menuItems: [],
-  setMenuItems: (items: MenuItem[]) => set({ menuItems: mapMenuItems(items) }),
-  activeTabKey: '',
-  setActiveTabKey: (key) => {
-    set({ activeTabKey: key });
-    get().updateBreadcrumb(key);
-  },
-  tabs: [],
-  setTabs: (tabs) => set({ tabs }),
-  breadcrumb: [],
-  setBreadcrumb: (breadcrumb) => set({ breadcrumb }),
-  handleMenuClick: (key) => {
-    const { menuItems, tabs, setTabs, setActiveTabKey } = get();
-
-    const [selectedItem, parents] = findItemAndParents(menuItems, key);
-    
-    if (selectedItem) {
-      const existingTab = tabs.find(tab => tab.key === selectedItem.key);
-      if (!existingTab) {
-        setTabs([...tabs, { label: selectedItem.label, children: `Content of ${selectedItem.label}`, key: selectedItem.key }]);
-      }
-      setActiveTabKey(selectedItem.key);
-    }
-  },
-  updateBreadcrumb: (key) => {
-    const { menuItems, setBreadcrumb } = get();
-    const [selectedItem, parents] = findItemAndParents(menuItems, key);
-    
-    if (selectedItem) {
-      const breadcrumb = [
-        ...parents.map(item => ({ label: item.label, icon: item.icon })),
-        { label: selectedItem.label, icon: selectedItem.icon }
-      ];
-      
-      setBreadcrumb(breadcrumb);
-    }
-  },
+export const useAppStore = create<AppState>()((...a) => ({
+  ...createMenuSlice(...a),
+  ...createTabsSlice(...a),
+  ...createBreadcrumbSlice(...a),
 }));
+
+export const useAppActions = () => {
+  const { findItemAndParents, addTab, setBreadcrumb, setActiveTabKey } = useAppStore();
+
+  const handleMenuClick = (key: string) => {
+    const [item, parents] = findItemAndParents(key);
+    if (item) {
+      addTab({ label: item.label, children: `Content of ${item.label}`, key: item.key });
+      setBreadcrumb([
+        ...parents.map(parent => ({ label: parent.label, icon: parent.icon })),
+        { label: item.label, icon: item.icon },
+      ]);
+      setActiveTabKey(item.key);
+    }
+  };
+
+  return { handleMenuClick };
+};

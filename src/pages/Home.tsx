@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Layout, theme } from 'antd';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import LeftSideBar from '../components/LeftSidebar';
-import { useAppStore } from '../store/appStore';
+import { useAppStore, useAppActions } from '../store/appStore';
 import { getMenuItems } from '../services/api';
 import Content from '../components/Content';
 
@@ -13,7 +13,10 @@ const Home: React.FC = () => {
   } = theme.useToken();
 
   const [collapsed, setCollapsed] = useState(false);
-  const { setMenuItems, handleMenuClick } = useAppStore();
+  const { setMenuItems } = useAppStore();
+  const { handleMenuClick: handleMenuClickAction } = useAppActions();
+
+  const memoizedHandleMenuClickAction = useCallback(handleMenuClickAction, []);
 
   useEffect(() => {
     const fetchMenuItems = async () => {
@@ -24,7 +27,7 @@ const Home: React.FC = () => {
         if (items.length > 0) {
           const firstMenuItem = items[0];
           const firstChildKey = firstMenuItem.children?.[0]?.key || firstMenuItem.key;
-          handleMenuClick(firstChildKey);
+          memoizedHandleMenuClickAction(firstChildKey);
         }
       } catch (error) {
         console.error('获取菜单项失败:', error);
@@ -32,7 +35,7 @@ const Home: React.FC = () => {
     };
 
     fetchMenuItems();
-  }, [setMenuItems, handleMenuClick]);
+  }, [setMenuItems, memoizedHandleMenuClickAction]);
 
   return (
     <Layout hasSider>
