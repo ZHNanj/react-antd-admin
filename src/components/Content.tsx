@@ -1,20 +1,15 @@
-import React, { useRef, useState } from 'react';
+import React from 'react';
 import { Layout, Tabs } from 'antd';
+import { useAppStore } from '../store/appStore';
 
 const { Content: AntContent } = Layout;
 
 type TargetKey = React.MouseEvent | React.KeyboardEvent | string;
 
-const Content: React.FC<{ 
-  background: string, 
-  tabs: { label: string, children: string, key: string }[], 
-  activeTabKey: string, 
-  setActiveTabKey: (key: string) => void,
-  setTabs: (tabs: { label: string, children: string, key: string }[]) => void,
-}> = ({ background, tabs, activeTabKey, setActiveTabKey, setTabs }) => {
+const Content: React.FC<{ background: string }> = ({ background }) => {
+  const { tabs, activeTabKey, setActiveTabKey, setTabs } = useAppStore();
 
   const onChange = (key: string) => {
-    console.log(key);
     setActiveTabKey(key);
   };
 
@@ -29,9 +24,7 @@ const Content: React.FC<{
   };
 
   const onEdit = (targetKey: TargetKey, action: 'add' | 'remove') => {
-    if (action === 'add') {
-      add();
-    } else {
+    if (action === 'remove') {
       remove(targetKey);
     }
   };

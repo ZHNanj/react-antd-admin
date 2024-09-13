@@ -1,0 +1,31 @@
+{
+    "menuItems": [
+      {
+        "key": "overview",
+        "label": "概览",
+        "icon": "UserOutlined",
+        "children": [
+          { "key": "analysis", "label": "分析页", "icon": "BarChartOutlined" },
+          { "key": "workspace", "label": "工作台", "icon": "AppstoreOutlined" }
+        ]
+      },
+      {
+        "key": "demo",
+        "label": "演示",
+        "icon": "VideoCameraOutlined",
+        "children": [
+          { "key": "antd-react", "label": "ant design react", "icon": "FileTextOutlined" }
+        ]
+      },
+      {
+        "key": "project",
+        "label": "项目",
+        "icon": "ProjectOutlined",
+        "children": [
+          { "key": "about", "label": "关于", "icon": "InfoCircleOutlined" },
+          { "key": "documentation", "label": "文档", "icon": "FileTextOutlined" },
+          { "key": "github", "label": "github", "icon": "GithubOutlined" }
+        ]
+      }
+    ]
+  }

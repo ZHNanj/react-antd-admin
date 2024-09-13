@@ -1,91 +1,43 @@
 import { Layout, Menu } from "antd";
 import { FC, useEffect, useState } from "react";
-import {
-    AppstoreOutlined,
-    BarChartOutlined,
-    FileTextOutlined,
-    GithubOutlined,
-    InfoCircleOutlined,
-    ProjectOutlined,
-    UserOutlined,
-    VideoCameraOutlined,
-} from '@ant-design/icons';
-import type { MenuProps } from 'antd';
-import React from "react";
-
-type MenuItem = Required<MenuProps>['items'][number];
-const items: MenuItem[] = [
-    {
-        key: 'overview',
-        label: '概览',
-        icon: <UserOutlined />,
-        children: [
-            { key: 'analysis', label: '分析页', icon: <BarChartOutlined /> },
-            { key: 'workspace', label: '工作台', icon: <AppstoreOutlined /> },
-        ],
-    },
-    {
-        key: 'demo',
-        label: '演示',
-        icon: <VideoCameraOutlined />,
-        children: [
-            { key: 'antd-react', label: 'ant design react', icon: <FileTextOutlined /> },
-        ],
-    },
-    {
-        key: 'project',
-        label: '项目',
-        icon: <ProjectOutlined />,
-        children: [
-            { key: 'about', label: '关于', icon: <InfoCircleOutlined /> },
-            { key: 'documentation', label: '文档', icon: <FileTextOutlined /> },
-            { key: 'github', label: 'github', icon: <GithubOutlined /> },
-        ],
-    },
-];
+import { useAppStore } from "../store/appStore";
+import { MenuItem } from "../types/menu";
 
 const { Sider } = Layout;
 
 interface IProps {
-    collapsed: boolean,
-    setCollapsed: (collapsed: boolean) => void,
-    setBreadcrumb: (breadcrumb: { label: string, icon: React.ReactNode }[]) => void,
-    tabs: { label: string, children: string, key: string }[],
-    addTab: (label: string, children: string, key: string) => void,
-    setActiveKey: (key: string) => void,
-    activeTabKey: string,
+  collapsed: boolean;
+  setCollapsed: (collapsed: boolean) => void;
 }
 
-const LeftSideBar: FC<IProps> = ({ collapsed, setCollapsed, setBreadcrumb, tabs, addTab, setActiveKey, activeTabKey }) => {
-  const [openKeys, setOpenKeys] = useState<string[]>(['overview']);
+const LeftSideBar: FC<IProps> = ({ collapsed, setCollapsed }) => {
+  const { menuItems, activeTabKey, handleMenuClick } = useAppStore();
+  const [openKeys, setOpenKeys] = useState<string[]>([]);
 
   useEffect(() => {
-    const parentKey = items.find(item => item.children?.some(child => child.key === activeTabKey))?.key;
-    if (parentKey && !openKeys.includes(parentKey)) {
-      setOpenKeys(prevKeys => [...prevKeys, parentKey]);
-    }
-  }, [activeTabKey, openKeys]);
-
-  const handleMenuClick = (key: string) => {
-    console.log(key);
-        const selectedItem = items.flatMap(item => item.children ? item.children : []).find(item => item.key === key);
-        const parentItem = items.find(item => item.children?.some(child => child.key === key));
-        const breadcrumb = [
-            // add parent item
-            parentItem ? { label: parentItem.label, icon: parentItem.icon } : null, 
-            selectedItem ? { label: selectedItem.label, icon: selectedItem.icon } : null
-        ].filter(Boolean) as { label: string, icon: React.ReactNode }[];
-        setBreadcrumb(breadcrumb);
-
-        if (selectedItem) {
-            const tab = tabs.find(tab => tab.key === selectedItem.key);
-            if (tab) {
-              setActiveKey(selectedItem.key);
-            } else {
-                addTab(selectedItem.label, `Content of ${selectedItem.label}`, selectedItem.key);
-            }
+    const findOpenKeys = (items: MenuItem[], targetKey: string, currentPath: string[] = []): string[] | null => {
+      for (const item of items) {
+        if (item.key === targetKey) {
+          return currentPath;
         }
+        if (item.children) {
+          const childPath = findOpenKeys(item.children, targetKey, [...currentPath, item.key]);
+          if (childPath) {
+            return childPath;
+          }
+        }
+      }
+      return null;
     };
+
+    const newOpenKeys = findOpenKeys(menuItems, activeTabKey);
+    if (newOpenKeys) {
+      setOpenKeys(prevOpenKeys => {
+        const combinedKeys = [...new Set([...prevOpenKeys, ...newOpenKeys])];
+        return combinedKeys;
+      });
+    }
+  }, [activeTabKey, menuItems]);
 
   const onOpenChange = (keys: string[]) => {
     setOpenKeys(keys);
@@ -97,8 +49,7 @@ const LeftSideBar: FC<IProps> = ({ collapsed, setCollapsed, setBreadcrumb, tabs,
       <Menu 
         theme="dark" 
         mode="inline" 
-        items={items} 
-        inlineCollapsed={collapsed} 
+        items={menuItems} 
         onClick={({ key }) => handleMenuClick(key)} 
         selectedKeys={[activeTabKey]}
         openKeys={openKeys}
